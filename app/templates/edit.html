@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="resume-creator">
+    <div class="resume-form-container">
+        <div class="form-header">
+            <h1>Редактирование резюме</h1>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="/resume/{{ resume.id }}/edit" class="resume-form" enctype="multipart/form-data">
+            <!-- Основная информация -->
+            <div class="form-section">
+                <h2 class="section-title">Основная информация</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_name">Имя*</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ resume.first_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Фамилия*</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ resume.last_name }}" required>
+                    </div>
+                    <div class="form-group photo-upload">
+                        <label for="photo">Фото</label>
+                        <div class="photo-upload-container">
+                            <label class="photo-upload-btn">
+                                <input type="file" id="photo" name="photo" accept="image/*" style="display: none;">
+                                <span class="btn-text">Изменить фото</span>
+                            </label>
+                            {% if resume.photo_path %}
+                            <div id="current-photo-container" style="display: block;">
+                                <img id="current-photo" src="/static/uploads/{{ resume.photo_path }}" style="max-width: 100px; max-height: 100px;">
+                                <span class="remove-photo" id="remove-photo-btn">&times;</span>
+                            </div>
+                            {% else %}
+                            <div id="current-photo-container" style="display: none;">
+                                <img id="current-photo" style="max-width: 100px; max-height: 100px;">
+                                <span class="remove-photo" id="remove-photo-btn">&times;</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Город*</label>
+                        <input type="text" id="city" name="city" value="{{ resume.city }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата рождения</label>
+                        <div class="date-input-group">
+                            <select id="birth_day" name="birth_day" class="form-control">
+                                <option value="">День</option>
+                                {% for day in range(1, 32) %}
+                                <option value="{{ day }}" {% if resume.birth_date and resume.birth_date.day == day %}selected{% endif %}>{{ day }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="birth_month" name="birth_month" class="form-control">
+                                <option value="">Месяц</option>
+                                {% for month in ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                                               'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'] %}
+                                <option value="{{ loop.index }}" {% if resume.birth_date and resume.birth_date.month == loop.index %}selected{% endif %}>{{ month }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="birth_year" name="birth_year" class="form-control">
+                                <option value="">Год</option>
+                                {% for year in range(current_year, current_year - 100, -1) %}
+                                <option value="{{ year }}" {% if resume.birth_date and resume.birth_date.year == year %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Контакты -->
+            <div class="form-section">
+                <h2 class="section-title">Контактная информация</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="email">Email*</label>
+                        <input type="email" id="email" name="email" value="{{ resume.email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Телефон*</label>
+                        <input type="tel" id="phone" name="phone" value="{{ resume.phone }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="github">GitHub</label>
+                        <input type="url" id="github" name="github" value="{{ resume.github if resume.github else '' }}" placeholder="https://github.com/username">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Позиция -->
+            <div class="form-section">
+                <h2 class="section-title">Позиция</h2>
+                <div class="form-group">
+                    <label for="position">Желаемая должность*</label>
+                    <input type="text" id="position" name="position" value="{{ resume.position }}" required placeholder="Например: Python-разработчик">
+                </div>
+            </div>
+
+            <!-- О себе -->
+            <div class="form-section">
+                <h2 class="section-title">О себе</h2>
+                <div class="form-group">
+                    <textarea id="about" name="about" rows="4" placeholder="Расскажите о своих профессиональных качествах и целях">{% if resume.about %}{{ resume.about }}{% endif %}</textarea>
+                </div>
+            </div>
+
+            <!-- Навыки -->
+            <div class="form-section">
+                <h2 class="section-title">Навыки*</h2>
+                <div id="skills-container">
+                    {% if resume.skills %}
+                        {% for skill in resume.skills %}
+                        <div class="skill-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+                            <div class="form-group">
+                                <label>Название навыка</label>
+                                <input type="text" name="skill_name" value="{{ skill.name }}" required class="skill-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Уровень</label>
+                                <select name="skill_level" required class="skill-level">
+                                    <option value="beginner" {% if skill.level == 'beginner' %}selected{% endif %}>Начальный</option>
+                                    <option value="basic" {% if skill.level == 'basic' %}selected{% endif %}>Базовый</option>
+                                    <option value="intermediate" {% if skill.level == 'intermediate' %}selected{% endif %}>Опытный</option>
+                                    <option value="professional" {% if skill.level == 'professional' %}selected{% endif %}>Профессиональный</option>
+                                </select>
+                            </div>
+                            <button type="button" class="remove-skill-btn secondary-btn" style="margin-top: 8px;">Удалить навык</button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="skill-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+                            <div class="form-group">
+                                <label>Название навыка</label>
+                                <input type="text" name="skill_name" required class="skill-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Уровень</label>
+                                <select name="skill_level" required class="skill-level">
+                                    <option value="beginner">Начальный</option>
+                                    <option value="basic">Базовый</option>
+                                    <option value="intermediate">Опытный</option>
+                                    <option value="professional">Профессиональный</option>
+                                </select>
+                            </div>
+                            <button type="button" class="remove-skill-btn secondary-btn" style="margin-top: 8px;">Удалить навык</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" id="add-skill-btn" class="primary-btn">Добавить навык</button>
+            </div>
+
+            <!-- Образование -->
+            <div class="form-section">
+                <h2 class="section-title">Образование*</h2>
+                <div class="form-group">
+                    <textarea id="education" name="education" rows="4" required placeholder="Название учебного заведения, специальность, годы обучения">{{ resume.education }}</textarea>
+                </div>
+            </div>
+
+            <!-- Опыт работы -->
+            <div class="form-section">
+                <h2 class="section-title">Опыт работы</h2>
+                <div class="form-group">
+                    <textarea id="experience" name="experience" rows="4" placeholder="Компания, должность, период работы, обязанности">{% if resume.experience %}{{ resume.experience }}{% endif %}</textarea>
+                </div>
+            </div>
+
+            <!-- Курсы повышения квалификации -->
+            <div class="form-section">
+                <h2 class="section-title">Курсы повышения квалификации</h2>
+                <div id="courses-container">
+                    {% if resume.courses %}
+                        {% for course in resume.courses %}
+                        <div class="course-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+                            <div class="form-group">
+                                <label>Название курса</label>
+                                <input type="text" name="course_name" value="{{ course.name }}" required class="course-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Организация</label>
+                                <input type="text" name="course_organization" value="{{ course.organization }}" required class="course-org">
+                            </div>
+                            <div class="form-group">
+                                <label>Год окончания</label>
+                                <input type="number" name="course_year" value="{{ course.year }}" required min="1900" max="2100" class="course-year">
+                            </div>
+                            <button type="button" class="remove-course-btn secondary-btn" style="margin-top: 8px;">Удалить курс</button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="course-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+                            <div class="form-group">
+                                <label>Название курса</label>
+                                <input type="text" name="course_name" required class="course-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Организация</label>
+                                <input type="text" name="course_organization" required class="course-org">
+                            </div>
+                            <div class="form-group">
+                                <label>Год окончания</label>
+                                <input type="number" name="course_year" required min="1900" max="2100" class="course-year">
+                            </div>
+                            <button type="button" class="remove-course-btn secondary-btn" style="margin-top: 8px;">Удалить курс</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" id="add-course-btn" class="primary-btn">Добавить курс</button>
+            </div>
+
+            <!-- Владение языками -->
+            <div class="form-section">
+                <h2 class="section-title">Владение языками</h2>
+                <div id="languages-container">
+                    {% if resume.languages %}
+                        {% for language in resume.languages %}
+                        <div class="language-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+                            <div class="form-group">
+                                <label>Язык</label>
+                                <input type="text" name="language_name" value="{{ language.name }}" required class="language-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Уровень</label>
+                                <select name="language_level" required class="language-level">
+                                    <option value="A1" {% if language.level == 'A1' %}selected{% endif %}>A1 - Начальный</option>
+                                    <option value="A2" {% if language.level == 'A2' %}selected{% endif %}>A2 - Базовый</option>
+                                    <option value="B1" {% if language.level == 'B1' %}selected{% endif %}>B1 - Средний</option>
+                                    <option value="B2" {% if language.level == 'B2' %}selected{% endif %}>B2 - Выше среднего</option>
+                                    <option value="C1" {% if language.level == 'C1' %}selected{% endif %}>C1 - Продвинутый</option>
+                                    <option value="C2" {% if language.level == 'C2' %}selected{% endif %}>C2 - Владение в совершенстве</option>
+                                </select>
+                            </div>
+                            <button type="button" class="remove-language-btn secondary-btn" style="margin-top: 8px;">Удалить язык</button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="language-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+                            <div class="form-group">
+                                <label>Язык</label>
+                                <input type="text" name="language_name" required class="language-name">
+                            </div>
+                            <div class="form-group">
+                                <label>Уровень</label>
+                                <select name="language_level" required class="language-level">
+                                    <option value="A1">A1 - Начальный</option>
+                                    <option value="A2">A2 - Базовый</option>
+                                    <option value="B1">B1 - Средний</option>
+                                    <option value="B2">B2 - Выше среднего</option>
+                                    <option value="C1">C1 - Продвинутый</option>
+                                    <option value="C2">C2 - Владение в совершенстве</option>
+                                </select>
+                            </div>
+                            <button type="button" class="remove-language-btn secondary-btn" style="margin-top: 8px;">Удалить язык</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" id="add-language-btn" class="primary-btn">Добавить язык</button>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="primary-btn large-btn">Сохранить изменения</button>
+                <a href="/resume/{{ resume.id }}" class="secondary-btn">Отмена</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="resume-preview-container">
+        <div class="resume-preview">
+            <div class="resume-header">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div id="photo-preview-container" style="{% if not resume.photo_path %}display: none;{% endif %}">
+                        <img id="photo-preview" class="photo-preview" src="{% if resume.photo_path %}/static/uploads/{{ resume.photo_path }}{% endif %}">
+                    </div>
+                    <div>
+                        <h1 id="preview-name">{{ resume.first_name }} {{ resume.last_name }}</h1>
+                        <p id="preview-position" class="position">{{ resume.position }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resume-section">
+                <h2 class="section-title">Контактная информация</h2>
+                <div class="contact-info">
+                    <div class="contact-item" id="preview-city">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ resume.city }}</span>
+                    </div>
+                    <div class="contact-item" id="preview-phone">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ resume.phone }}</span>
+                    </div>
+                    <div class="contact-item" id="preview-email">
+                        <i class="fas fa-envelope"></i>
+                        <span>{{ resume.email }}</span>
+                    </div>
+                    <div class="contact-item" id="preview-github" style="{% if not resume.github %}display: none;{% endif %}">
+                        <i class="fab fa-github"></i>
+                        <span>{% if resume.github %}{{ resume.github }}{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if resume.about %}
+            <div class="resume-section" id="preview-about-section">
+                <h2 class="section-title">О себе</h2>
+                <p id="preview-about">{{ resume.about }}</p>
+            </div>
+            {% endif %}
+
+            <div id="preview-skills-section" style="display: none;">
+                <h2>Навыки</h2>
+                <div class="skills-list" id="preview-skills"></div>
+            </div>
+
+            <div class="resume-section" id="preview-education-section">
+                <h2 class="section-title">Образование</h2>
+                <p id="preview-education">{{ resume.education }}</p>
+            </div>
+
+            {% if resume.experience %}
+            <div class="resume-section" id="preview-experience-section">
+                <h2 class="section-title">Опыт работы</h2>
+                <p id="preview-experience">{{ resume.experience }}</p>
+            </div>
+            {% endif %}
+
+            <div class="resume-section" id="preview-courses-section" style="display: none;">
+                <h2 class="section-title">Курсы повышения квалификации</h2>
+                <div class="section-content" id="preview-courses-container"></div>
+            </div>
+
+            <div class="resume-section" id="preview-languages-section" style="display: none;">
+                <h2 class="section-title">Владение языками</h2>
+                <div class="section-content" id="preview-languages-container"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Шаблоны для динамического добавления -->
+    <template id="course-template">
+        <div class="course-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+            <div class="form-group">
+                <label>Название курса</label>
+                <input type="text" name="course_name" required class="course-name">
+            </div>
+            <div class="form-group">
+                <label>Организация</label>
+                <input type="text" name="course_organization" required class="course-org">
+            </div>
+            <div class="form-group">
+                <label>Год окончания</label>
+                <input type="number" name="course_year" required min="1900" max="2100" class="course-year">
+            </div>
+            <button type="button" class="remove-course-btn secondary-btn" style="margin-top: 8px;">Удалить курс</button>
+        </div>
+    </template>
+
+    <template id="language-template">
+        <div class="language-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+            <div class="form-group">
+                <label>Язык</label>
+                <input type="text" name="language_name" required class="language-name">
+            </div>
+            <div class="form-group">
+                <label>Уровень</label>
+                <select name="language_level" required class="language-level">
+                    <option value="A1">A1 - Начальный</option>
+                    <option value="A2">A2 - Базовый</option>
+                    <option value="B1">B1 - Средний</option>
+                    <option value="B2">B2 - Выше среднего</option>
+                    <option value="C1">C1 - Продвинутый</option>
+                    <option value="C2">C2 - Владение в совершенстве</option>
+                </select>
+            </div>
+            <button type="button" class="remove-language-btn secondary-btn" style="margin-top: 8px;">Удалить язык</button>
+        </div>
+    </template>
+    <template id="skill-template">
+        <div class="skill-item" style="margin-bottom: 16px; border: 1px solid var(--border-light); padding: 12px; border-radius: 8px;">
+            <div class="form-group">
+                <label>Название навыка</label>
+                <input type="text" name="skill_name" required class="skill-name">
+            </div>
+            <div class="form-group">
+                <label>Уровень</label>
+                <select name="skill_level" required class="skill-level">
+                    <option value="beginner">Начальный</option>
+                    <option value="basic">Базовый</option>
+                    <option value="intermediate">Опытный</option>
+                    <option value="professional">Профессиональный</option>
+                </select>
+            </div>
+            <button type="button" class="remove-skill-btn secondary-btn" style="margin-top: 8px;">Удалить навык</button>
+        </div>
+    </template>
+</div>
+<script src="/static/js/main.js"></script>
+{% endblock %}

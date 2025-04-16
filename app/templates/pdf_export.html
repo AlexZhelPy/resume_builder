@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Резюме {{ resume.first_name }} {{ resume.last_name }}</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+        .resume-preview-container-export {
+            padding: 0;
+        }
+        .resume-preview-export {
+            padding: 15mm 20mm;
+        }
+        .resume-section {
+            margin-bottom: 5mm; /* Увеличили отступ между секциями */
+            break-inside: auto;
+            padding-top: 5mm; /* Добавили отступ сверху для каждого раздела */
+        }
+        .section-title {
+            break-after: avoid;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        .section-content {
+            break-inside: auto;
+            margin-top: 8px;
+        }
+        @page {
+            size: A4;
+            margin: 10mm 10mm; /* Увеличили верхний отступ страницы */
+        }
+        @page :first {
+            margin-top: 5mm; /* Меньший отступ для первой страницы */
+        }
+        .photo-preview {
+            max-width: 80px;
+            max-height: 100px;
+            object-fit: contain;
+            image-rendering: -webkit-optimize-contrast; /* Улучшение качества изображения */
+        }
+
+        p, li, .course-preview-item, .language-preview-item, .skill-preview-item {
+            page-break-inside: avoid;  /* Стараемся не разрывать мелкие элементы */
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-preview-container-export">
+        <div class="resume-preview-export">
+            <div class="resume-header">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div id="photo-preview-container" style="{% if not resume.photo_path %}display: none;{% endif %}">
+                        <img id="photo-preview" class="photo-preview" src="{% if resume.photo_path %}/static/uploads/{{ resume.photo_path }}{% endif %}">
+                    </div>
+                    <div>
+                        <h1 id="preview-name">{{ resume.first_name }} {{ resume.last_name }}</h1>
+                        <p id="preview-position" class="position">{{ resume.position }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="resume-section">
+                <h2 class="section-title">Контактная информация</h2>
+                <div class="contact-info">
+                    <div class="contact-item" id="preview-city">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ resume.city }}</span>
+                    </div>
+                    <div class="contact-item" id="preview-phone">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ resume.phone }}</span>
+                    </div>
+                    <div class="contact-item" id="preview-email">
+                        <i class="fas fa-envelope"></i>
+                        <span>{{ resume.email }}</span>
+                    </div>
+                    <div class="contact-item" id="preview-github" style="{% if not resume.github %}display: none;{% endif %}">
+                        <i class="fab fa-github"></i>
+                        <span>{% if resume.github %}{{ resume.github }}{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if resume.about %}
+            <div class="resume-section" id="preview-about-section">
+                <h2 class="section-title">О себе</h2>
+                <p id="preview-about">{{ resume.about }}</p>
+            </div>
+            {% endif %}
+
+            <div class="resume-section" id="preview-education-section">
+                <h2 class="section-title">Образование</h2>
+                <p id="preview-education">{{ resume.education }}</p>
+            </div>
+
+            {% if resume.experience %}
+            <div class="resume-section" id="preview-experience-section">
+                <h2 class="section-title">Опыт работы</h2>
+                <div class="section-content-pdf">
+                    {% for paragraph in resume.experience.split('\n') %}
+                        <p>{{ paragraph }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Навыки -->
+            {% if resume.skills %}
+            <div class="resume-section" id="preview-skills-section">
+                <h2 class="section-title">Навыки</h2>
+                <div class="skills-list" id="preview-skills">
+                    {% for skill in resume.skills %}
+                    <div class="skill-preview-item">
+                        <strong>{{ skill.name }}</strong>:
+                        {% if skill.level == 'beginner' %}Начальный
+                        {% elif skill.level == 'basic' %}Базовый
+                        {% elif skill.level == 'intermediate' %}Опытный
+                        {% elif skill.level == 'professional' %}Профессиональный
+                        {% else %}{{ skill.level }}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Курсы -->
+            {% if resume.courses %}
+            <div class="resume-section" id="preview-courses-section">
+                <h2 class="section-title">Курсы повышения квалификации</h2>
+                <div class="section-content" id="preview-courses-container">
+                    {% for course in resume.courses %}
+                    <div class="course-preview-item">
+                        <strong>{{ course.name }}</strong> ({{ course.organization }})<br>
+                        {% if course.year %}Год окончания: {{ course.year }}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Языки -->
+            {% if resume.languages %}
+            <div class="resume-section" id="preview-languages-section">
+                <h2 class="section-title">Владение языками</h2>
+                <div class="section-content" id="preview-languages-container">
+                    {% for language in resume.languages %}
+                    <div class="language-preview-item">
+                        <strong>{{ language.name }}</strong>:
+                        {% if language.level == 'A1' %}A1 - Начальный
+                        {% elif language.level == 'A2' %}A2 - Базовый
+                        {% elif language.level == 'B1' %}B1 - Средний
+                        {% elif language.level == 'B2' %}B2 - Выше среднего
+                        {% elif language.level == 'C1' %}C1 - Продвинутый
+                        {% elif language.level == 'C2' %}C2 - Владение в совершенстве
+                        {% else %}{{ language.level }}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="resume-list-container">
+    <div class="resume-list-header">
+        <h1>Мои резюме</h1>
+        <a href="/create" class="create-btn">+ Создать резюме</a>
+    </div>
+
+    {% if not resumes %}
+    <div class="empty-state">
+        <img src="/static/images/empty-resumes.svg" alt="Нет резюме" class="empty-icon">
+        <h3>У вас пока нет резюме</h3>
+        <p>Создайте свое первое резюме, чтобы начать поиск работы</p>
+        <a href="/create" class="primary-btn">Создать резюме</a>
+    </div>
+    {% else %}
+    <div class="resume-grid">
+        {% for resume in resumes %}
+        <div class="resume-card">
+            <div class="resume-card-main">
+                <div class="resume-title">
+                    <h3>{{ resume.position }}</h3>
+                    <span class="resume-date">{{ resume.created_at.strftime('%d.%m.%Y') }}</span>
+                </div>
+                <div class="resume-user">
+                    <span class="user-name">{{ resume.first_name }} {{ resume.last_name }}</span>
+                    <span class="user-location">{{ resume.city }}</span>
+                </div>
+            </div>
+            <div class="resume-card-actions">
+                <a href="/resume/{{ resume.id }}" class="action-btn view-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 3C4.66667 3 1.82 5.07333 0.666667 8C1.82 10.9267 4.66667 13 8 13C11.3333 13 14.18 10.9267 15.3333 8C14.18 5.07333 11.3333 3 8 3ZM8 11.3333C6.16 11.3333 4.66667 9.84 4.66667 8C4.66667 6.16 6.16 4.66667 8 4.66667C9.84 4.66667 11.3333 6.16 11.3333 8C11.3333 9.84 9.84 11.3333 8 11.3333ZM8 6C6.89333 6 6 6.89333 6 8C6 9.10667 6.89333 10 8 10C9.10667 10 10 9.10667 10 8C10 6.89333 9.10667 6 8 6Z" fill="#1D78E5"/>
+                    </svg>
+                    Просмотр
+                </a>
+                <a href="/resume/{{ resume.id }}/edit" class="action-btn edit-btn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M11.3333 1.99999C11.5083 1.825 11.7163 1.68666 11.9457 1.59277C12.1751 1.49888 12.4216 1.45117 12.6707 1.45244C12.9198 1.45371 13.1667 1.50394 13.3953 1.60011C13.6239 1.69628 13.8298 1.83647 14.0013 2.01199C14.1728 2.18751 14.3067 2.39493 14.3952 2.62184C14.4837 2.84875 14.525 3.09055 14.5167 3.33332C14.5083 3.5761 14.4504 3.81482 14.3467 4.03532L14 4.66666L11.3333 2L11.9667 1.65332C12.1867 1.55066 12.424 1.49332 12.6667 1.48499L11.3333 1.99999ZM9.75333 3.52666L2.66667 10.6133V13.3333H5.38667L12.4733 6.24666L9.75333 3.52666Z" fill="#1D78E5"/>
+                    </svg>
+                    Редактировать
+                </a>
+                <div class="dropdown">
+                    <button class="dropdown-btn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 8.66667C8.36819 8.66667 8.66667 8.36819 8.66667 8C8.66667 7.63181 8.36819 7.33333 8 7.33333C7.63181 7.33333 7.33333 7.63181 7.33333 8C7.33333 8.36819 7.63181 8.66667 8 8.66667Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 4.00001C8.36819 4.00001 8.66667 3.70153 8.66667 3.33334C8.66667 2.96515 8.36819 2.66667 8 2.66667C7.63181 2.66667 7.33333 2.96515 7.33333 3.33334C7.33333 3.70153 7.63181 4.00001 8 4.00001Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 13.3333C8.36819 13.3333 8.66667 13.0349 8.66667 12.6667C8.66667 12.2985 8.36819 12 8 12C7.63181 12 7.33333 12.2985 7.33333 12.6667C7.33333 13.0349 7.63181 13.3333 8 13.3333Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <form action="/resume/{{ resume.id }}/delete" method="post" style="display: inline;">
+                            <button type="submit" class="dropdown-item delete-item"
+                                    style="appearance: none;"
+                                    onclick="return confirm('Вы уверены, что хотите удалить это резюме?')">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M2 4H3.33333H14" stroke="#F44336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M5.3335 4V2.66667C5.3335 2.31305 5.47397 1.97391 5.72402 1.72386C5.97407 1.47381 6.31321 1.33334 6.66683 1.33334H9.3335C9.68712 1.33334 10.0263 1.47381 10.2763 1.72386C10.5264 1.97391 10.6668 2.31305 10.6668 2.66667V4M12.6668 4V13.3333C12.6668 13.687 12.5264 14.0261 12.2763 14.2761C12.0263 14.5262 11.6871 14.6667 11.3335 14.6667H4.66683C4.31321 14.6667 3.97407 14.5262 3.72402 14.2761C3.47397 14.0261 3.3335 13.687 3.3335 13.3333V4H12.6668Z" stroke="#F44336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Удалить
+                            </button>
+                        </form>
+                        <a href="#" class="dropdown-item export-pdf-btn" data-resume-id="{{ resume.id }}">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8.00016 10.6667V8.00001M8.00016 5.33334H8.00683M14.6668 8.00001C14.6668 11.6819 11.6821 14.6667 8.00016 14.6667C4.31826 14.6667 1.3335 11.6819 1.3335 8.00001C1.3335 4.31811 4.31826 1.33334 8.00016 1.33334C11.6821 1.33334 14.6668 4.31811 14.6668 8.00001Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Экспорт в PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+<script src="/js/main.js"></script>
+{% endblock %}

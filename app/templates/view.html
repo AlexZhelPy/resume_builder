@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="resume-view-container">
+    <div class="resume-view-header">
+        <h1>Резюме</h1>
+        <div class="resume-actions">
+            <a href="/resume/{{ resume.id }}/edit" class="action-btn edit-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M11.3333 1.99999C11.5083 1.825 11.7163 1.68666 11.9457 1.59277C12.1751 1.49888 12.4216 1.45117 12.6707 1.45244C12.9198 1.45371 13.1667 1.50394 13.3953 1.60011C13.6239 1.69628 13.8298 1.83647 14.0013 2.01199C14.1728 2.18751 14.3067 2.39493 14.3952 2.62184C14.4837 2.84875 14.525 3.09055 14.5167 3.33332C14.5083 3.5761 14.4504 3.81482 14.3467 4.03532L14 4.66666L11.3333 2L11.9667 1.65332C12.1867 1.55066 12.424 1.49332 12.6667 1.48499L11.3333 1.99999ZM9.75333 3.52666L2.66667 10.6133V13.3333H5.38667L12.4733 6.24666L9.75333 3.52666Z" fill="#1D78E5"/>
+                </svg>
+                Редактировать
+            </a>
+            <a href="#" class="export-btn export-pdf-btn" data-resume-id="{{ resume.id }}">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8.00016 10.6667V8.00001M8.00016 5.33334H8.00683M14.6668 8.00001C14.6668 11.6819 11.6821 14.6667 8.00016 14.6667C4.31826 14.6667 1.3335 11.6819 1.3335 8.00001C1.3335 4.31811 4.31826 1.33334 8.00016 1.33334C11.6821 1.33334 14.6668 4.31811 14.6668 8.00001Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Экспорт в PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="resume-view">
+        <div class="resume-card">
+            <div class="resume-main-info">
+                <div class="resume-person">
+                    <h2>{{ resume.first_name }} {{ resume.last_name }}</h2>
+                    <p class="position">{{ resume.position }}</p>
+                </div>
+                <div class="resume-contacts">
+                    <div class="contact-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M14 4V12C14 12.5304 13.7893 13.0391 13.4142 13.4142C13.0391 13.7893 12.5304 14 12 14H4C3.46957 14 2.96086 13.7893 2.58579 13.4142C2.21071 13.0391 2 12.5304 2 12V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H12C12.5304 2 13.0391 2.21071 13.4142 2.58579C13.7893 2.96086 14 3.46957 14 4Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11 2V4" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 2V4" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 6H14" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>{{ resume.birth_date.strftime('%d.%m.%Y') if resume.birth_date else 'Не указана' }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 8C9.65685 8 11 6.65685 11 5C11 3.34315 9.65685 2 8 2C6.34315 2 5 3.34315 5 5C5 6.65685 6.34315 8 8 8Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 14C2 11.7909 3.79086 10 6 10H10C12.2091 10 14 11.7909 14 14V14.6667H2V14Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>{{ resume.city }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M2 4L7.072 8.432C7.35467 8.66311 7.71829 8.78915 8.094 8.78915C8.46971 8.78915 8.83333 8.66311 9.116 8.432L14 4M3.33333 13.3333H12.6667C13.403 13.3333 14 12.7364 14 12V4C14 3.26362 13.403 2.66667 12.6667 2.66667H3.33333C2.59695 2.66667 2 3.26362 2 4V12C2 12.7364 2.59695 13.3333 3.33333 13.3333Z" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>{{ resume.email }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M14.6667 12V13.3333C14.6667 14.0697 14.0697 14.6667 13.3333 14.6667H2.66667C1.93029 14.6667 1.33333 14.0697 1.33333 13.3333V2.66667C1.33333 1.93029 1.93029 1.33333 2.66667 1.33333H4M14.6667 6V1.33333H10M10 1.33333L13.3333 4.66667M10 1.33333L6.66667 4.66667" stroke="#6D7885" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% if resume.github %}
+                        <a href="{{ resume.github }}" target="_blank">{{ resume.github }}</a>
+                        {% else %}
+                        <span>Не указан</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if resume.about %}
+            <div class="resume-section">
+                <h3 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10Z" fill="#1D78E5"/>
+                        <path d="M10 12C5 12 0 14.6863 0 20H20C20 14.6863 15 12 10 12Z" fill="#1D78E5"/>
+                    </svg>
+                    О себе
+                </h3>
+                <div class="section-content">
+                    <p>{{ resume.about }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="resume-section">
+                <h3 class="section-title">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M16.6667 5L10 1.66667L3.33333 5L10 8.33333L16.6667 5Z" stroke="#1D78E5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3.3335 5V15L10 18.3333L16.6668 15V5" stroke="#1D78E5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 8.33333V18.3333" stroke="#1D78E5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Навыки
+                </h3>
+                <div class="section-content">
+                    <div class="skills-list">
+                        {% if resume.skills %}
+                            {% for skill in resume.skills %}
+                            <div class="skill-preview-item">
+                                <strong>{{ skill.name }}</strong>:
+                                {% set level_map = {
+                                    'beginner': 'Начальный',
+                                    'basic': 'Базовый',
+                                    'intermediate': 'Опытный',
+                                    'professional': 'Профессиональный'
+                                } %}
+                                {{ level_map.get(skill.level, skill.level) }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Курсы повышения квалификации -->
+            {% if resume.courses %}
+            <div class="resume-section">
+                <h2 class="section-title">Курсы повышения квалификации</h2>
+                <div class="section-content">
+                    {% for course in resume.courses %}
+                    <p><strong>{{ course.name }}</strong> ({{ course.organization }})<br>
+                    Год окончания: {{ course.year }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Владение языками -->
+            {% if resume.languages %}
+            <div class="resume-section">
+                <h2 class="section-title">Владение языками</h2>
+                <div class="section-content">
+                    {% for language in resume.languages %}
+                    <p><strong>{{ language.name }}</strong>:
+                    {% set level_map = {
+                        'A1': 'A1 - Начальный',
+                        'A2': 'A2 - Базовый',
+                        'B1': 'B1 - Средний',
+                        'B2': 'B2 - Выше среднего',
+                        'C1': 'C1 - Продвинутый',
+                        'C2': 'C2 - Владение в совершенстве'
+                    } %}
+                    {{ level_map.get(language.level, language.level) }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+{% endblock %}
